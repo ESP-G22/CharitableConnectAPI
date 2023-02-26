@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['api.cc.n0ne1eft.dev','127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'events.apps.EventsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
