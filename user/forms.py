@@ -15,5 +15,3 @@ class CCUserCreationForm(forms.ModelForm):
         user.set_password(self.password)
         if commit: user.save()
         return user
-    
-    
