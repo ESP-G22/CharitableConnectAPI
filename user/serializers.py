@@ -16,3 +16,8 @@ class CCUserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CCUser
         fields = ['username', 'email', 'password']
+
+class CCUserPasswordChangeSerializer(serializers.Serializer):
+    model = CCUser
+    oldPassword = serializers.CharField(required=True)
+    newPassword = serializers.CharField(required=True)
