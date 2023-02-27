@@ -15,7 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+AUTH_USER_MODEL = 'user.CCUser'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -25,18 +25,22 @@ SECRET_KEY = 'django-insecure-l55w3h5p1zs&!tf8&ts#pta@74$z7xd6!&z%vi^-l&#h*)*qb2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['api.cc.n0ne1eft.dev']
+ALLOWED_HOSTS = ['api.cc.n0ne1eft.dev','127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'events.apps.EventsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'user',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +52,42 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework_json_api.pagination.JsonApiPageNumberPagination',
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        # If you're performance testing, you will want to use the browseable API
+        # without forms, as the forms can generate their own queries.
+        # If performance testing, enable:
+        # 'example.utils.BrowsableAPIRendererWithoutForms',
+        # Otherwise, to play around with the browseable API, enable:
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    ),
+    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework_json_api.filters.QueryParameterValidationFilter',
+        'rest_framework_json_api.filters.OrderingFilter',
+        'rest_framework_json_api.django_filters.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+    ),
+    'SEARCH_PARAM': 'filter[search]',
+    'TEST_REQUEST_RENDERER_CLASSES': (
+        'rest_framework_json_api.renderers.JSONRenderer',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
+}
+
 
 ROOT_URLCONF = 'CharitableConnectAPI.urls'
 
