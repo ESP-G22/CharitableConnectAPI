@@ -2,3 +2,4 @@ django
 djangorestframework
 djangorestframework-jsonapi
 django-filter
+Pillow
