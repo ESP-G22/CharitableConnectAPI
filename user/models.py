@@ -63,7 +63,7 @@ class CCUserProfile(models.Model):
     website = models.URLField(default='', null=True,blank=True)
     instagram = models.URLField(default='', null=True,blank=True)
     facebook = models.URLField(default='',null=True,blank=True)
-    avatar = models.ImageField()
+    avatar = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
