@@ -3,3 +3,4 @@ djangorestframework
 djangorestframework-jsonapi
 django-filter
 Pillow
+drf-yasg
