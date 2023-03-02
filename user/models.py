@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy
 
 class UserType(models.TextChoices):
     SITEADMIN = 'S_ADMIN', gettext_lazy('SiteAdmin')
-    ORGNAISER = 'ORGNAISER', gettext_lazy('ORGNAISER')
+    ORGANISER = 'ORGANISER', gettext_lazy('ORGANISER')
     USER = 'USER', gettext_lazy('USER')
 
 class EventPreferences(models.TextChoices):
@@ -44,8 +44,8 @@ class CCUser(AbstractUser):
         return self.username
 
     @property
-    def is_orgnaiser(self):
-        return self.profile.userType == UserType.ORGNAISER
+    def is_organiser(self):
+        return self.profile.userType == UserType.ORGANISER
     
     @property
     def is_user(self):
