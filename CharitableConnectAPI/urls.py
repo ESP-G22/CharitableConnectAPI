@@ -25,8 +25,6 @@ schema_view = get_schema_view(
         title="Charitable Connect API",
         default_version='v1',
         description="The Django API for the Charitable Connect application",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@snippets.local"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
