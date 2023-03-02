@@ -162,3 +162,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'description': 'Access token. To generate this token, please create a GET request on the /login endpoint. The token must start with "Token " (e.g. "Token ec9226215e8a14cd7856becfe464a3c13c9e9e29").',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}

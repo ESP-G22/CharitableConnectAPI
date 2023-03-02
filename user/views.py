@@ -7,12 +7,15 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import viewsets
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 import django
 
 class CCUserListView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_description="Gets a list of users", responses={200: openapi.Response("OK", CCUserGetSerializer(many=True))})
     def get(self, request, format=None):
         if request.user.is_staff:
             usernames = [{'pk': user.pk, 'username': user.username} for user in CCUser.objects.all()]
@@ -27,6 +30,7 @@ class CCUserProfileView(APIView):
     def get_object(self, pk):
         return CCUser.objects.get(pk=pk)
     
+    @swagger_auto_schema(operation_description="Gets the specified user's profile information", responses={200: openapi.Response("OK", CCUserProfileSerializer()),404: openapi.Response("User not found")})
     def get(self, request: Request, pk, format=None):
         userId = request.query_params.get('user_id')
         try:
@@ -34,7 +38,8 @@ class CCUserProfileView(APIView):
         except CCUser.DoesNotExist:
             return Response({},status=404)
         return Response(CCUserProfileSerializer(user.profile).data)
-
+    
+    @swagger_auto_schema(operation_description="Updates the specified user", responses={200: openapi.Response("OK", CCUserProfileSerializer()),404: openapi.Response("User not found"),400: openapi.Response("Bad request. The input data may be in the incorrect format. Refer to documentation."),403: openapi.Response("Forbidden. This may occur if a non-staff user attempts to update the profile of a user that isn't themselves.")})
     def put(self, request: Request, pk, format=None):
         try:
             user = self.get_object(pk)
@@ -53,6 +58,7 @@ class CCUserProfileView(APIView):
 class CCUserRegisterView(APIView):
     authentication_classes = [TokenAuthentication]
 
+    @swagger_auto_schema(operation_description="Registers a new user", responses={200: openapi.Response("OK", CCUserGetSerializer()),400: openapi.Response("Bad request. The input data may be in the incorrect format. Refer to documentation.")},query_serializer=CCUserRegisterSerializer())
     def post(self, request, format=None):
         serializer = CCUserRegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -72,6 +78,7 @@ class CCUserPasswordChangeView(APIView):
     permission_classes = [IsAuthenticated]
     model = CCUser
 
+    @swagger_auto_schema(operation_description="Changes the password of a user", responses={200: openapi.Response("OK"),400: openapi.Response("Bad request. The old password might be incorrect, or the input data may be in the incorrect format. Refer to documentation.")},query_serializer=CCUserPasswordChangeSerializer())
     def put(self, request, format=None):
         user = self.request.user
         serializer = CCUserPasswordChangeSerializer(data=request.data)
