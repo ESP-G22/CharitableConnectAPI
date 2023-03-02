@@ -19,11 +19,11 @@ class CCUserManager(UserManager):
         if not username:
             raise ValueError("User does not contain valid username")
         if not password:
-            raise ValueError("User does not conatin valid password")
+            raise ValueError("User does not contain valid password")
 
         user = self.model(
             email=self.normalize_email(email),
-            username = username
+            username=username
         )
         user.set_password(password)
         user.save(using=self._db)
