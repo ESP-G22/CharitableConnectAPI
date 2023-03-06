@@ -16,6 +16,7 @@ class CCEventListView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_description="Gets a list of events", responses={200: openapi.Response("OK", CCEventSerializer(many=True))})
     def get(self, request, format=None):
         return Response([CCEventSerializer(event).data for event in Event.objects.all()])
 
@@ -23,6 +24,7 @@ class CCEventView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_description="Gets the specified event", responses={200: openapi.Response("OK", CCEventSerializer()),404: openapi.Response("Event not found")})
     def get(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
@@ -30,6 +32,7 @@ class CCEventView(APIView):
             return Response({"ok": False, "error": "Event not found."},status=HTTP_404_NOT_FOUND)
         return Response(CCEventSerializer(event).data,status=HTTP_200_OK)
     
+    @swagger_auto_schema(operation_description="Updates the specified event",query_serializer=CCEventSerializer() ,responses={200: openapi.Response("OK"),404: openapi.Response("Event Not Found"),401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to update an event for which they are not an organiser."),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
     def put(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
@@ -44,6 +47,7 @@ class CCEventView(APIView):
         else:
             return Response({"ok": False, "error": serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(operation_description="Deletes the specified event", responses={200: openapi.Response("OK"),404: openapi.Response("Event Not Found"),401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to delete an event for which they are not an organiser.")})
     def delete(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
@@ -58,6 +62,7 @@ class CCEventCreationView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_description="Creates a new event",query_serializer=CCNewEventSerializer(),responses={200: openapi.Response("OK", CCEventSerializer()),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
     def post(self, request):
         serializers = CCNewEventSerializer(data = request.data)
         if serializers.is_valid():
