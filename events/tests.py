@@ -12,11 +12,10 @@ from events.serializers import *
 from user.models import CCUser
 
 
+
 class CreateEventTestCase(APITestCase):
 
     # Test to create user and store token for event tests.
-    def create_user(self):
-        pass
 
     def test_create(self):
         data = {"type": 1, "title": "Test_Event",
