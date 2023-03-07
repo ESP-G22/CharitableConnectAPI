@@ -4,7 +4,12 @@ Experimental Django API
 ## Available APIs
 
 ### Events
-TODO
+- [x] Create
+- [x] Delete
+- [x] Edit
+- [x] Get
+- [x] List
+- [x] Documentation
 
 ### RSVP
 TODO
@@ -16,7 +21,7 @@ TODO
 - [x] List users
 - [x] Register new account
 - [x] Change password
-- [ ] API Documentation
+- [x] API Documentation
 ###
 
 ### Testing Endpoint
