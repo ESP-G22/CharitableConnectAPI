@@ -3,15 +3,13 @@ from user.models import CCUser
 from django.utils import timezone
 import datetime
 
-
 class Address(models.Model):
-    lon = models.FloatField(blank=True, null=True)  # Optional for Map Integration
+    lon = models.FloatField(blank=True, null=True) # Optional for Map Intergration
     lat = models.FloatField(blank=True, null=True)
     buildingName = models.CharField(max_length = 50)
     streetName = models.CharField(max_length = 100)
     townCity = models.CharField(max_length = 100)
     postcode = models.CharField(max_length = 10)
-
 
 class Event(models.Model):
     type = models.IntegerField(default = 0)
@@ -22,13 +20,13 @@ class Event(models.Model):
     organiser = models.ForeignKey(CCUser, on_delete=models.CASCADE)
     address = models.OneToOneField(Address, on_delete=models.CASCADE, blank=True, null=True)
 
-    # Image
-    # rsvp
+    #Image
+    #rsvp
 
     @property
     def attendeeCount(self):
         return 0 # Todo generate from rsvp
 
-    # Makes events easily identifiable in admin viewer.
+    #Makes events easily identifiable in admin viewer.
     def __str__(self):
         return self.title
