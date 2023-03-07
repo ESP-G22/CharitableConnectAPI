@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['api.cc.n0ne1eft.dev','127.0.0.1','localhost']
 
-
 # Application definition
 
 INSTALLED_APPS = [
