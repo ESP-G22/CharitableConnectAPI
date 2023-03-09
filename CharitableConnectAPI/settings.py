@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,8 +25,10 @@ SECRET_KEY = 'django-insecure-l55w3h5p1zs&!tf8&ts#pta@74$z7xd6!&z%vi^-l&#h*)*qb2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['api.cc.n0ne1eft.dev','127.0.0.1','localhost']
+ADDITIONAL_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ") if os.getenv("ALLOWED_HOSTS") != None else []
 
+ALLOWED_HOSTS = ['api.cc.n0ne1eft.dev','127.0.0.1','localhost'] + ADDITIONAL_HOSTS
+CSRF_TRUSTED_ORIGINS = ["https://"+host for host in ALLOWED_HOSTS] + ["http://"+host for host in ALLOWED_HOSTS]
 # Application definition
 
 INSTALLED_APPS = [
