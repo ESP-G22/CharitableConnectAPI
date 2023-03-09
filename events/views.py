@@ -75,17 +75,17 @@ class CCEventCreationView(APIView):
 
 class CCEventSearchView(APIView):
     """
-    This method search the event based on HTTP GET Parameter <searchTerm>, return list of Events
-    Exmaple: GET https://api.cc.n0ne1eft.dev/event/search?searchTerm=Fundraising
+    This method searches the event based on HTTP GET Parameter <searchTerm>, return list of Events
+    Example: GET https://api.cc.n0ne1eft.dev/event/search?searchTerm=Fundraising
     """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_description="Search Events based on title and organiser name",
+        operation_description="Gets a list of events matching the specified search term",
         query_serializer=CCEventSearchSerializer,
         responses={
-            200: openapi.Response("OK", ), # TODO Matt:  List of Event Repr
+            200: openapi.Response("OK", CCEventSerializer(many=True)),
             400: openapi.Response("Bad Request, parameter not found or empty.")
         }
     )
