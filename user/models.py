@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.utils.translation import gettext_lazy
 
 class UserType(models.TextChoices):
-    SITEADMIN = 'S_ADMIN', gettext_lazy('SiteAdmin')
     ORGANISER = 'ORGANISER', gettext_lazy('ORGANISER')
     USER = 'USER', gettext_lazy('USER')
 
