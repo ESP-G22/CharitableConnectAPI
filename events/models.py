@@ -14,12 +14,12 @@ class Event(models.Model):
     address2 = models.TextField(max_length=200, null=True)
     postcode = models.TextField(max_length=10)
 
+    # aceess RSVP using event.rsvp_set
     #Image
-    #rsvp
 
     @property
     def attendeeCount(self):
-        return 0 # Todo generate from rsvp
+        return len(self.rsvp_set.all())
 
     #Makes events easily identifiable in admin viewer.
     def __str__(self):

@@ -1,6 +1,7 @@
 from .models import *
 from .serializers import *
 from CharitableConnectAPI.authentication import BearerAuthentication
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -10,10 +11,11 @@ from rest_framework import viewsets
 from rest_framework.status import *
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rsvp.serializer import CCRSVPSerializer
 import django
 
 class CCEventListView(APIView):
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication,TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_description="Gets a list of events", responses={200: openapi.Response("OK", CCEventSerializer(many=True))})
@@ -21,7 +23,7 @@ class CCEventListView(APIView):
         return Response([CCEventSerializer(event).data for event in Event.objects.all()])
 
 class CCEventView(APIView):
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication,TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_description="Gets the specified event", responses={200: openapi.Response("OK", CCEventSerializer()),404: openapi.Response("Event not found")})
@@ -58,8 +60,27 @@ class CCEventView(APIView):
         event.delete()
         return Response({"ok": True, "msg": "Event has been successfully deleted."}, status=HTTP_200_OK)
 
+class CCEventRSVPView(APIView):
+    authentication_classes = [BearerAuthentication,TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(operation_description="Gets the RSVPs of specified event",
+                         responses={200: openapi.Response("OK", CCRSVPSerializer(many=True)),
+                                    404: openapi.Response("Event not found")})
+    def get(self, request, pk):
+        try:
+            event = Event.objects.get(pk = pk)
+        except Event.DoesNotExist:
+            return Response({"ok": False, "error": "Event not found."},status=HTTP_404_NOT_FOUND)
+        if not request.user.is_staff and event.organiser.pk != request.user.id:
+            return Response({"ok": False, "error": "Unauthorized: You are not event organiser."}, status=HTTP_401_UNAUTHORIZED)
+        return Response({
+            "ok": True,
+            "data": [CCRSVPSerializer(r).data for r in event.rsvp_set.all()]
+        })
+
 class CCEventCreationView(APIView):
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication,TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_description="Creates a new event",query_serializer=CCNewEventSerializer(),responses={200: openapi.Response("OK", CCEventSerializer()),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
@@ -78,7 +99,7 @@ class CCEventSearchView(APIView):
     This method searches the event based on HTTP GET Parameter <searchTerm>, return list of Events
     Example: GET https://api.cc.n0ne1eft.dev/event/search?searchTerm=Fundraising
     """
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication,TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
