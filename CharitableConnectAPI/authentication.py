@@ -3,7 +3,7 @@ class BearerAuthentication(TokenAuthentication):
     keyword = ['token','bearer']
     def authenticate(self, request):
         auth = get_authorization_header(request).split()
-        if not auth or auth[0].lower() not in self.keyword:
+        if not auth or auth[0].lower().decode() not in self.keyword:
             return None
         if len(auth) == 1:
             msg = _('Invalid token header. No credentials provided.')
