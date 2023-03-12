@@ -9,6 +9,7 @@ from events.models import Event
 from .models import RSVP
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from CharitableConnectAPI.authentication import BearerAuthentication
 
 class CCRSVPCreationView(APIView):
     """
@@ -16,7 +17,7 @@ class CCRSVPCreationView(APIView):
     POST Parameter:
         event: int
     """
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [BearerAuthentication,TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -64,7 +65,7 @@ class CCRSVPCreationView(APIView):
             }, status=HTTP_400_BAD_REQUEST)
 
 class CCRSVPView(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [BearerAuthentication,TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
