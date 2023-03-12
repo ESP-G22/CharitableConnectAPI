@@ -85,12 +85,17 @@ class CCEventCreationView(APIView):
 
     @swagger_auto_schema(operation_description="Creates a new event",query_serializer=CCNewEventSerializer(),responses={200: openapi.Response("OK", CCEventSerializer()),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
     def post(self, request):
+        if request.user.profile.userType != 'ORGANISER':
+            return Response({
+                "ok": False,
+                "error": "User is not organiser"
+            }, status=HTTP_403_FORBIDDEN)
         serializers = CCNewEventSerializer(data = request.data)
         if serializers.is_valid():
             validated_data = serializers.validated_data
             validated_data['organiser'] = request.user
-            serializers.save()
-            return Response({"ok": True, "msg": "New Event has been created", "data": CCEventSerializer(serializers.validated_data).data}, status=HTTP_200_OK)
+            event = serializers.save()
+            return Response({"ok": True, "msg": "New Event has been created", "data": CCEventSerializer(event).data}, status=HTTP_200_OK)
         else:
             return Response({"ok": False, "error": serializers.errors}, status=HTTP_400_BAD_REQUEST)
 
