@@ -10,6 +10,7 @@ from rest_framework import viewsets
 from rest_framework.status import *
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rsvp.serializer import CCRSVPSerializer
 import django
 
 class CCEventListView(APIView):
@@ -57,6 +58,25 @@ class CCEventView(APIView):
             return Response({"ok": False, "error": "Unauthorized: You are not event organiser."}, status=HTTP_401_UNAUTHORIZED)
         event.delete()
         return Response({"ok": True, "msg": "Event has been successfully deleted."}, status=HTTP_200_OK)
+
+class CCEventRSVPView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(operation_description="Gets the RSVPs of specified event",
+                         responses={200: openapi.Response("OK", CCRSVPSerializer(many=True)),
+                                    404: openapi.Response("Event not found")})
+    def get(self, request, pk):
+        try:
+            event = Event.objects.get(pk = pk)
+        except Event.DoesNotExist:
+            return Response({"ok": False, "error": "Event not found."},status=HTTP_404_NOT_FOUND)
+        if not request.user.is_staff and event.organiser.pk != request.user.id:
+            return Response({"ok": False, "error": "Unauthorized: You are not event organiser."}, status=HTTP_401_UNAUTHORIZED)
+        return Response({
+            "ok": True,
+            "data": [CCRSVPSerializer(r).data for r in event.rsvp_set.all()]
+        })
 
 class CCEventCreationView(APIView):
     authentication_classes = [TokenAuthentication]
