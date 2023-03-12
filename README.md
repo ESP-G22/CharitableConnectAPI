@@ -12,7 +12,10 @@ Experimental Django API
 - [x] Documentation
 
 ### RSVP
-TODO
+- [x] Create
+- [x] Delete
+- [x] List
+- [x] Docs
 
 ### User
 - [x] Login (get auth token)
@@ -28,6 +31,5 @@ TODO
 Hosted on Azure Container App Service
 Auto-synced upon every push to main branch
 
-https://charitableconnectapi.politeforest-b82f43b6.uksouth.azurecontainerapps.io
-~~https://api.cc.n0ne1eft.dev~~
+https://api.cc.n0ne1eft.dev
 
