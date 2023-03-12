@@ -25,6 +25,9 @@ TODO
 ###
 
 ### Testing Endpoint
+Hosted on Azure Container App Service
 Auto-synced upon every push to main branch
 
-https://api.cc.n0ne1eft.dev
+https://charitableconnectapi.politeforest-b82f43b6.uksouth.azurecontainerapps.io
+~~https://api.cc.n0ne1eft.dev~~
+

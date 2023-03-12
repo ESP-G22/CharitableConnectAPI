@@ -3,4 +3,5 @@ djangorestframework
 djangorestframework-jsonapi
 django-filter
 Pillow
+tzdata
 drf-yasg

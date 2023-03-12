@@ -11,3 +11,6 @@ class CCNewEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         exclude = ['organiser']
+
+class CCEventSearchSerializer(serializers.Serializer):
+    searchTerm = serializers.CharField()

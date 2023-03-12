@@ -72,3 +72,33 @@ class CCEventCreationView(APIView):
             return Response({"ok": True, "msg": "New Event has been created", "data": CCEventSerializer(serializers.validated_data).data}, status=HTTP_200_OK)
         else:
             return Response({"ok": False, "error": serializers.errors}, status=HTTP_400_BAD_REQUEST)
+
+class CCEventSearchView(APIView):
+    """
+    This method searches the event based on HTTP GET Parameter <searchTerm>, return list of Events
+    Example: GET https://api.cc.n0ne1eft.dev/event/search?searchTerm=Fundraising
+    """
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Gets a list of events matching the specified search term",
+        query_serializer=CCEventSearchSerializer,
+        responses={
+            200: openapi.Response("OK", CCEventSerializer(many=True)),
+            400: openapi.Response("Bad Request, parameter not found or empty.")
+        }
+    )
+    def get(self,request):
+        serializers = CCEventSearchSerializer(data=request.query_params)
+        if serializers.is_valid():
+            validated_data = serializers.validated_data
+            searchTerm = str(validated_data['searchTerm']).lower()
+            events = Event.objects.all()                                               # Get all events
+            filteredEvents = list(filter(lambda e:                                     # Use lambda function to filter
+                                         searchTerm in e.title.lower() or              # If search term match title
+                                         searchTerm in ('' if e.organiser.profile.name == None else e.organiser.profile.name), # If search term match organiser name
+                                         events))                                      # Search Scope
+            return Response({"ok": True, "data": [CCEventSerializer(e).data for e in filteredEvents]}) # Return filtered events as a list
+        else:
+            return Response({"ok": False, "error": serializers.errors}, status=HTTP_400_BAD_REQUEST) # Invalid Format
