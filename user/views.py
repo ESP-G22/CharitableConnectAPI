@@ -1,18 +1,16 @@
 from .models import *
 from .serializers import *
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
+from CharitableConnectAPI.authentication import BearerAuthentication
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework import viewsets
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 import django
 
 class CCUserListView(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_description="Gets a list of users", responses={200: openapi.Response("OK", CCUserGetSerializer(many=True))})
@@ -24,7 +22,7 @@ class CCUserListView(APIView):
         return Response(usernames)
 
 class CCUserProfileView(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -56,7 +54,7 @@ class CCUserProfileView(APIView):
 
 
 class CCUserRegisterView(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [BearerAuthentication]
 
     @swagger_auto_schema(operation_description="Registers a new user", responses={200: openapi.Response("OK", CCUserGetSerializer()),400: openapi.Response("Bad request. The input data may be in the incorrect format. Refer to documentation.")},query_serializer=CCUserRegisterSerializer())
     def post(self, request, format=None):
@@ -74,7 +72,7 @@ class CCUserRegisterView(APIView):
             return Response(serializer.errors,status=400)
 
 class CCUserPasswordChangeView(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
     model = CCUser
 
