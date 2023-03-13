@@ -1,6 +1,4 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import *
@@ -17,16 +15,17 @@ class CCRSVPCreationView(APIView):
     POST Parameter:
         event: int
     """
-    authentication_classes = [BearerAuthentication,TokenAuthentication]
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description="This view creates a new RSVP request on an event.",
         responses={
-            200: openapi.Response("OK", CCRSVPSerializer),
+            200: openapi.Response("OK", CCRSVPSerializer()),
             400: openapi.Response("Event does not exist"),
-            409: openapi.Response("User has already rsvped.")
-        }
+            409: openapi.Response("User has already RSVPed.")
+        },
+        query_serializer=CCRSVPCreationSerializer()
     )
     def post(self, request):
         serializer = CCRSVPCreationSerializer(data=request.data)
@@ -65,15 +64,15 @@ class CCRSVPCreationView(APIView):
             }, status=HTTP_400_BAD_REQUEST)
 
 class CCRSVPView(APIView):
-    authentication_classes = [BearerAuthentication,TokenAuthentication]
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_description="This view gets the detail of a rsvp using id",
+        operation_description="This view gets the detail of a RSVP using ID",
         responses={
-            200: openapi.Response("OK", CCRSVPSerializer),
+            200: openapi.Response("OK", CCRSVPSerializer()),
             400: openapi.Response("RSVP does not exist"),
-            401: openapi.Response("Unauthorized. This rsvp does not belong to current user.")
+            401: openapi.Response("Unauthorized. This RSVP does not belong to current user.")
         }
     )
     def get(self, request, pk):
@@ -95,11 +94,11 @@ class CCRSVPView(APIView):
             }, status=HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="This view delete rsvp.",
+        operation_description="This view deletes an RSVP.",
         responses={
             200: openapi.Response("OK"),
             400: openapi.Response("RSVP does not exist"),
-            401: openapi.Response("Unauthorized. This rsvp does not belong to current user.")
+            401: openapi.Response("Unauthorized. This RSVP does not belong to current user.")
         }
     )
     def delete(self, request, pk):
@@ -113,10 +112,10 @@ class CCRSVPView(APIView):
         if rsvp.user.pk != request.user.pk:
             return Response({
                 'ok': False,
-                'error': "Unauthorized. This rsvp does not belong to current user."
+                'error': "Unauthorized. This RSVP does not belong to current user."
             }, status=HTTP_401_UNAUTHORIZED)
         rsvp.delete()
         return Response({
                 'ok': True,
-                'msg': "Event has been deleted."
+                'msg': "RSVP has been deleted."
             }, status=HTTP_200_OK)
