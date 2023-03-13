@@ -13,7 +13,6 @@ class Event(models.Model):
     address1 = models.TextField(max_length=200)
     address2 = models.TextField(max_length=200, null=True)
     postcode = models.TextField(max_length=10)
-
     # aceess RSVP using event.rsvp_set
     #Image
 

@@ -12,6 +12,8 @@ class EventTestCase(APITestCase):
     def test_order(self):
         pk, token = self.User_login()
 
+        self.Test_event_create_not_organiser(token)
+        self.Update_organiser(pk, token)
         self.Test_event_create(token)
         self.Test_event_create_er(token)
 
@@ -45,6 +47,14 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         return user.pk, response.json()['token']
     
+    # Updates user to organiser status
+    def Update_organiser(self, pk, token):
+        data = { "userType": "ORGANISER", }
+        response = self.client.put(f"/user/profile/{pk}", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['userType'], "ORGANISER")
+        return
+    
     # Create Event
     def Test_event_create(self, token):
         data = { "type": "0", 
@@ -53,6 +63,7 @@ class EventTestCase(APITestCase):
                 "date": str(test_date),
                 "address1": "45 Test Road",
                 "postcode": "BA2 4AS", }
+        
         response = self.client.post("/events/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.json()['msg'], 'New Event has been created')
         return
@@ -70,8 +81,24 @@ class EventTestCase(APITestCase):
                          {'type': ['A valid integer is required.'], 
                           'title': ['This field may not be blank.'], 
                           'description': ['This field may not be blank.'], 
-                          'date': ['Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].']})
+                          'date': ['Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'], 
+                          'address1': ['This field may not be blank.'], 
+                          'postcode': ['This field may not be blank.']})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        return
+    
+    # Create Event without organiser status
+    def Test_event_create_not_organiser(self, token):
+        data = { "type": "0", 
+                "title": "Test_Event", 
+                "description": "This event is going to be fun!", 
+                "date": str(test_date),
+                "address1": "45 Test Road",
+                "postcode": "BA2 4AS", }
+        
+        response = self.client.post("/events/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.json()['error'], 'User is not organiser')
         return
     
     # Retrieve specified event
@@ -96,11 +123,13 @@ class EventTestCase(APITestCase):
     
     # Update existing event
     def Test_event_update(self, token):
-        data = { "type": "1", 
-                "title": "Test_Event_Updated", 
+        data = { "title": "Test_Event_Updated", 
                 "description": "This event is going to be terrible!", 
-                "date": str(test_date) }
+                "date": str(test_date),
+                "address1": "45 Test Street",
+                "postcode": "BA2 4AB", }
         response = self.client.put("/events/1", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['msg'], 'Event has been successfully updated.')
         return
@@ -115,10 +144,13 @@ class EventTestCase(APITestCase):
                 "postcode": "", }
         response = self.client.put("/events/1", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error'], {'type': ['A valid integer is required.'], 
-                                                    'title': ['This field may not be blank.'], 
-                                                    'description': ['This field may not be blank.'], 
-                                                    'date': ['Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].']})
+        self.assertEqual(response.json()['error'], 
+                         {'type': ['A valid integer is required.'], 
+                          'title': ['This field may not be blank.'], 
+                          'description': ['This field may not be blank.'], 
+                          'date': ['Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'], 
+                          'address1': ['This field may not be blank.'], 
+                          'postcode': ['This field may not be blank.']})
         return
     
     # Update non-existing event
