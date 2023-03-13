@@ -29,7 +29,7 @@ class CCEventView(APIView):
             return Response({"ok": False, "error": "Event not found."},status=HTTP_404_NOT_FOUND)
         return Response(CCEventSerializer(event).data,status=HTTP_200_OK)
     
-    @swagger_auto_schema(operation_description="Updates the specified event",query_serializer=CCEventSerializer() ,responses={200: openapi.Response("OK"),404: openapi.Response("Event Not Found"),401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to update an event for which they are not an organiser."),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
+    @swagger_auto_schema(operation_description="Updates the specified event",responses={200: openapi.Response("OK"),404: openapi.Response("Event Not Found"),401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to update an event for which they are not an organiser."),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
     def put(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
