@@ -26,7 +26,9 @@ class EventTestCase(APITestCase):
         self.Test_event_update_er(token)
         self.Test_event_update_er1(token)
 
-        #self.Test_event_search(token)
+        self.Test_event_search(token)
+        self.Test_event_search_er(token)
+        self.Test_event_search_er1(token)
 
         self.Test_event_delete_er1()
         self.Test_event_delete(token)
@@ -65,6 +67,7 @@ class EventTestCase(APITestCase):
                 "postcode": "BA2 4AS", }
         
         response = self.client.post("/events/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['msg'], 'New Event has been created')
         return
     
@@ -118,6 +121,7 @@ class EventTestCase(APITestCase):
     # List all events
     def Test_event_list(self, token):
         response = self.client.get("/events/list", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.json()[0]['id'], 1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         return
     
@@ -129,7 +133,6 @@ class EventTestCase(APITestCase):
                 "address1": "45 Test Street",
                 "postcode": "BA2 4AB", }
         response = self.client.put("/events/1", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['msg'], 'Event has been successfully updated.')
         return
@@ -166,9 +169,25 @@ class EventTestCase(APITestCase):
 
     # Search for a specific event
     def Test_event_search(self, token):
-        data = { "searchTerm": "Test_Event_Updated", }
+        data = { "searchTerm": "Test", }
         response = self.client.get("/events/search", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return
+    
+    # Search for a non-existing event
+    def Test_event_search_er(self, token):
+        data = { "searchTerm": "Fooey", }
+        response = self.client.get("/events/search", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['data'], [])
+        return
+    
+    # Search for an event without searchTerm
+    def Test_event_search_er1(self, token):
+        data = { "searchTerm": "", }
+        response = self.client.get("/events/search", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error'], {'searchTerm': ['This field may not be blank.']})
         return
 
     # Deletes a specified event
@@ -197,6 +216,7 @@ class EventTestCase(APITestCase):
         token = response.json()['token']
         response1 = self.client.delete("/events/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response1.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response1.json()['error'], 'Unauthorized: You are not event organiser.')
         return
   
 

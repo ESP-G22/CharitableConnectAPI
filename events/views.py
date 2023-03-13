@@ -37,7 +37,7 @@ class CCEventView(APIView):
             return Response({"ok": False, "error": "Event not found."},status=HTTP_404_NOT_FOUND)
         if not request.user.is_staff and event.organiser.pk != request.user.id:
             return Response({"ok": False, "error": "Unauthorized: You are not event organiser."}, status=HTTP_401_UNAUTHORIZED)
-        serializer = CCEventSerializer(event,data=request.data)
+        serializer = CCEventSerializer(event,data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"ok": True, "msg": "Event has been successfully updated."}, status=HTTP_200_OK)
