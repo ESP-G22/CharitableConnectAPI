@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'rsvp',
+    'images',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
