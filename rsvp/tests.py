@@ -197,7 +197,7 @@ class RSVPTestCase(APITestCase):
     def Test_rsvp_get_er(self, token):
         response = self.client.get("/rsvp/0", format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()['error'], 'Event does not exist.')
+        self.assertEqual(response.json()['error'], 'RSVP does not exist.')
         return
     
     # Attemps to get rsvp info of a different user
