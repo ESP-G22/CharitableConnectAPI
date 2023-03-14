@@ -21,9 +21,9 @@ class CCRSVPCreationView(APIView):
     @swagger_auto_schema(
         operation_description="This view creates a new RSVP request on an event.",
         responses={
-            201: openapi.Response("Event Created.", CCRSVPSerializer()),
-            400: openapi.Response("Event does not exist."),
-            409: openapi.Response("User has already RSVPed.")
+            201: openapi.Response("Event Created.", CCRSVPSerializer(),examples={'application/json':{"ok": True, "data": {"id": 0,"dateCreated": "2023-03-14T22:12:16.779Z","event": 0,"user": 0}}}),
+            400: openapi.Response("Event does not exist.",examples={'application/json':{"ok": False, "error": "Event does not exist."}}),
+            409: openapi.Response("User has already RSVPed.",examples={'application/json':{"ok": False, "error": "RSVP has already been created."}}),
         },
         query_serializer=CCRSVPCreationSerializer()
     )
@@ -70,9 +70,9 @@ class CCRSVPView(APIView):
     @swagger_auto_schema(
         operation_description="This view gets the detail of a RSVP using ID",
         responses={
-            200: openapi.Response("OK", CCRSVPSerializer()),
-            400: openapi.Response("RSVP does not exist."),
-            401: openapi.Response("Unauthorized. This RSVP does not belong to current user.")
+            200: openapi.Response("OK", CCRSVPSerializer(),examples={'application/json':{"ok": True, "data": {"event":1, "user":1}}}),
+            400: openapi.Response("RSVP does not exist.",examples={'application/json':{"ok": False, "error": "RSVP does not exist."}}),
+            401: openapi.Response("Unauthorized. This RSVP does not belong to current user.",examples={'application/json':{"ok": False, "error": "Unauthorized. This RSVP does not belong to current user."}})
         }
     )
     def get(self, request, pk):
@@ -81,12 +81,12 @@ class CCRSVPView(APIView):
         except RSVP.DoesNotExist:  # If event is not found return error
             return Response({
                 'ok': False,
-                'error': "Event does not exist."
+                'error': "RSVP does not exist."
             }, status=HTTP_400_BAD_REQUEST)
         if not (rsvp.user.pk == request.user.pk or rsvp.event.organiser.pk == request.user.pk):
             return Response({
                 'ok': False,
-                'error': "Unauthorized. This rsvp does not belong to current user."
+                'error': "Unauthorized. This RSVP does not belong to current user."
             }, status=HTTP_401_UNAUTHORIZED)
         return Response({
                 'ok': True,
@@ -96,9 +96,9 @@ class CCRSVPView(APIView):
     @swagger_auto_schema(
         operation_description="This view deletes an RSVP.",
         responses={
-            200: openapi.Response("OK"),
-            400: openapi.Response("RSVP does not exist."),
-            401: openapi.Response("Unauthorized. This RSVP does not belong to current user.")
+            200: openapi.Response("OK",examples={'application/json':{"ok": True, "msg": "RSVP has been deleted."}}),
+            400: openapi.Response("RSVP does not exist.",examples={'application/json':{"ok": False, "error": "RSVP does not exist."}}),
+            401: openapi.Response("Unauthorized. This RSVP does not belong to current user.",examples={'application/json':{"ok": False, "error": "Unauthorized. This RSVP does not belong to current user."}})
         }
     )
     def delete(self, request, pk):

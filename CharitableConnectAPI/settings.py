@@ -174,5 +174,6 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization',
             'in': 'header'
         }
-    }
+    },
+    'DEFAULT_MODEL_RENDERING': 'example',
 }
