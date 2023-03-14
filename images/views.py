@@ -17,9 +17,9 @@ class ImageUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     @swagger_auto_schema(
-        operation_description="Upload an image, return an uuid as the unique identifier of the image",
+        operation_description="Upload an image, return an UUID as the unique identifier of the image",
         responses={
-            200: openapi.Response("Success", ImageUploadResponseSerializer()),
+            200: openapi.Response("OK", ImageUploadResponseSerializer()),
             400: openapi.Response("Incorrect format")
         },
         manual_parameters=[
@@ -40,10 +40,10 @@ class ImageRetrieveView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     @swagger_auto_schema(
-        operation_description="Download an image using id",
+        operation_description="Download an image using ID",
         responses={
-            200: ImageUploadResponseSerializer(),
-            404: openapi.Response({"ok": False, "error": "Image not found"})
+            200: openapi.Response("OK"),
+            404: openapi.Response("Image not found",examples={'application/json':{"ok": False, "error": "Image not found"}})
         }
     )
     def get(self, request, id):

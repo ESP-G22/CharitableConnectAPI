@@ -13,7 +13,12 @@ class CCEventListView(APIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_description="Gets a list of events", responses={200: openapi.Response("OK", CCEventSerializer(many=True))})
+    @swagger_auto_schema(
+        operation_description = "Gets a list of events", 
+        responses = {
+            200: openapi.Response("OK", CCEventSerializer(many=True))
+        }
+    )
     def get(self, request, format=None):
         return Response([CCEventSerializer(event).data for event in Event.objects.all()])
 
@@ -21,7 +26,13 @@ class CCEventView(APIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_description="Gets the specified event", responses={200: openapi.Response("OK", CCEventSerializer()),404: openapi.Response("Event not found")})
+    @swagger_auto_schema(
+        operation_description = "Gets the specified event", 
+        responses = {
+            200: openapi.Response("OK", CCEventSerializer()),
+            404: openapi.Response("Event not found",examples={'application/json': {"ok": False, "error": "Event not found."}})
+        }
+    )
     def get(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
@@ -29,7 +40,15 @@ class CCEventView(APIView):
             return Response({"ok": False, "error": "Event not found."},status=HTTP_404_NOT_FOUND)
         return Response(CCEventSerializer(event).data,status=HTTP_200_OK)
     
-    @swagger_auto_schema(operation_description="Updates the specified event",responses={200: openapi.Response("OK"),404: openapi.Response("Event Not Found"),401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to update an event for which they are not an organiser."),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
+    @swagger_auto_schema(
+        operation_description="Updates the specified event",
+        responses={
+            200: openapi.Response("OK",examples={'application/json': {"ok": True, "msg": "Event has been successfully updated."}}),
+            404: openapi.Response("Event Not Found",examples={'application/json': {"ok": False, "error": "Event Not Found."}}),
+            401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to update an event for which they are not an organiser.",examples={'application/json': {"ok": False, "error": "Unauthorized: You are not event organiser."}}),
+            400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.",examples={'application/json': {"ok": False, "error": "Bad Request."}}),
+        }
+    )
     def put(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
@@ -46,7 +65,14 @@ class CCEventView(APIView):
         else:
             return Response({"ok": False, "error": serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(operation_description="Deletes the specified event", responses={200: openapi.Response("OK"),404: openapi.Response("Event Not Found"),401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to delete an event for which they are not an organiser.")})
+    @swagger_auto_schema(
+        operation_description = "Deletes the specified event", 
+        responses = {
+            200: openapi.Response("OK",examples={'application/json': {"ok": True, "msg": "Event has been successfully deleted."}}),
+            404: openapi.Response("Event Not Found",examples={'application/json': {"ok": False, "error": "Event Not Found."}}),
+            401: openapi.Response("Unauthorized. This may occur if a non-staff user attempts to delete an event for which they are not an organiser.",examples={'application/json': {"ok": False, "error": "Unauthorized: You are not event organiser."}}),
+        }
+    )
     def delete(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
@@ -61,9 +87,14 @@ class CCEventRSVPView(APIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_description="Gets the RSVPs of specified event",
-                         responses={200: openapi.Response("OK", CCRSVPSerializer(many=True)),
-                                    404: openapi.Response("Event not found")})
+    @swagger_auto_schema(
+        operation_description="Gets the RSVPs of specified event",
+        responses={
+            200: openapi.Response("OK", CCRSVPSerializer(many=True),examples={'application/json': {"ok": True, "data":[]}}),
+            401: openapi.Response("Unauthorized User",examples={'application/json': {"ok": False, "error": "Unauthorized: You are not event organiser."}}),
+            404: openapi.Response("Event not found",examples={"ok": False, "error": "Event not found."})
+        }
+    )
     def get(self, request, pk):
         try:
             event = Event.objects.get(pk = pk)
@@ -80,7 +111,15 @@ class CCEventCreationView(APIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_description="Creates a new event",query_serializer=CCNewEventSerializer(),responses={200: openapi.Response("OK", CCEventSerializer()),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation."), 403: openapi.Response("User is not organiser")})
+    @swagger_auto_schema(
+        operation_description = "Creates a new event",
+        query_serializer = CCNewEventSerializer(),
+        responses = {
+            200: openapi.Response("OK", CCEventSerializer(),examples={'application/json': {"ok": True, "msg": "New Event has been created","data":{}}}),
+            400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.",examples={'application/json': {"ok": False, "error": "Invalid Image UUIDs"}}), 
+            403: openapi.Response("User is not organiser",examples={"application/json": {"ok": False, "error": "User is not organiser."}}),
+        }
+    )
     def post(self, request):
         if request.user.profile.userType != 'ORGANISER':
             return Response({
@@ -108,10 +147,10 @@ class CCEventSearchView(APIView):
 
     @swagger_auto_schema(
         operation_description="Gets a list of events matching the specified search term",
-        query_serializer=CCEventSearchSerializer,
+        query_serializer=CCEventSearchSerializer(),
         responses={
-            200: openapi.Response("OK", CCEventSerializer(many=True)),
-            400: openapi.Response("Bad Request, parameter not found or empty.")
+            200: openapi.Response("OK", CCEventSerializer(many=True),examples={'application/json': {"ok": True, "data": []}}),
+            400: openapi.Response("Bad Request, parameter not found or empty.",examples={'application/json': {"ok": False, "error": "Bad Request, parameter not found or empty."}}),
         }
     )
     def get(self,request):
