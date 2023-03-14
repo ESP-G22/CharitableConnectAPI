@@ -154,13 +154,13 @@ class EventTestCase(APITestCase):
 
     # Creates multiple test Events
     def Test_event_create(self, token):
-        data = { "type": "0", 
+        data = { "type": "Movies",
                 "title": "Test_Event", 
                 "description": "This event is going to be fun!", 
                 "date": str(test_date),
                 "address1": "45 Test Road",
                 "postcode": "BA2 4AS", }
-        data1 = { "type": "0", 
+        data1 = { "type": "Movies", 
                 "title": "Test_Event1", 
                 "description": "This event is going to be BAD!", 
                 "date": str(test_date),
@@ -184,7 +184,7 @@ class EventTestCase(APITestCase):
                 "postcode": "", }
         response = self.client.post("/events/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.json()['error'], 
-                         {'type': ['A valid integer is required.'], 
+                         {'type': ['"" is not a valid choice.'],
                           'title': ['This field may not be blank.'], 
                           'description': ['This field may not be blank.'], 
                           'date': ['Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'], 
@@ -193,9 +193,9 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         return
     
-    # Attempts to create Event without organiser status
-    def Test_event_create_er1(self, token):
-        data = { "type": "0", 
+    # Create Event without organiser status
+    def Test_event_create_not_organiser(self, token):
+        data = { "type": "Other", 
                 "title": "Test_Event", 
                 "description": "This event is going to be fun!", 
                 "date": str(test_date),
@@ -209,7 +209,7 @@ class EventTestCase(APITestCase):
     
     # Attempts to create event without token
     def Test_event_create_er2(self):
-        data = { "type": "0", 
+        data = { "type": "Other", 
                 "title": "Test_Event", 
                 "description": "This event is going to be fun!", 
                 "date": str(test_date),
@@ -282,7 +282,7 @@ class EventTestCase(APITestCase):
     
     # Update existing event with no input data
     def Test_event_update_er(self, token):
-        data = { "type": "", 
+        data = { "type": "",
                 "title": "", 
                 "description": "", 
                 "date": "",
@@ -291,7 +291,7 @@ class EventTestCase(APITestCase):
         response = self.client.put("/events/1", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json()['error'], 
-                         {'type': ['A valid integer is required.'], 
+                         {'type': ['"" is not a valid choice.'],
                           'title': ['This field may not be blank.'], 
                           'description': ['This field may not be blank.'], 
                           'date': ['Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'], 
@@ -301,7 +301,7 @@ class EventTestCase(APITestCase):
     
     # Update non-existing event
     def Test_event_update_er1(self, token):
-        data = { "type": "1", 
+        data = { "type": "Other",
                 "title": "Test_Event_Updated", 
                 "description": "This event is going to be terrible!", 
                 "date": str(test_date) }
