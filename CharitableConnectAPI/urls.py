@@ -38,4 +38,5 @@ urlpatterns = [
     path('events/', include('events.urls')),
     path('rsvp/', include('rsvp.urls')),
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('images/', include('images.urls'))
 ]

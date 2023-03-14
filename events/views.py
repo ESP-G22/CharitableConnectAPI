@@ -39,6 +39,8 @@ class CCEventView(APIView):
             return Response({"ok": False, "error": "Unauthorized: You are not event organiser."}, status=HTTP_401_UNAUTHORIZED)
         serializer = CCEventSerializer(event,data=request.data,partial=True)
         if serializer.is_valid():
+            if not Event.validate_images_json(serializer.validated_data):
+                return Response({"ok": False, "error": "Invalid Image UUIDs"}, status=HTTP_400_BAD_REQUEST)
             serializer.save()
             return Response({"ok": True, "msg": "Event has been successfully updated."}, status=HTTP_200_OK)
         else:
@@ -88,6 +90,8 @@ class CCEventCreationView(APIView):
         serializers = CCNewEventSerializer(data = request.data)
         if serializers.is_valid():
             validated_data = serializers.validated_data
+            if not Event.validate_images_json(validated_data):
+                return Response({"ok": False, "error": "Invalid Image UUIDs"}, status=HTTP_400_BAD_REQUEST)
             validated_data['organiser'] = request.user
             event = serializers.save()
             return Response({"ok": True, "msg": "New Event has been created", "data": CCEventSerializer(event).data}, status=HTTP_200_OK)
