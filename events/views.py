@@ -78,7 +78,7 @@ class CCEventCreationView(APIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_description="Creates a new event",query_serializer=CCNewEventSerializer(),responses={200: openapi.Response("OK", CCEventSerializer()),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation.")})
+    @swagger_auto_schema(operation_description="Creates a new event",query_serializer=CCNewEventSerializer(),responses={200: openapi.Response("OK", CCEventSerializer()),400: openapi.Response("Bad Request. The input data may be in the incorrect format. Refer to documentation."), 403: openapi.Response("User is not organiser")})
     def post(self, request):
         if request.user.profile.userType != 'ORGANISER':
             return Response({

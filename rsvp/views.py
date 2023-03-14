@@ -21,8 +21,8 @@ class CCRSVPCreationView(APIView):
     @swagger_auto_schema(
         operation_description="This view creates a new RSVP request on an event.",
         responses={
-            200: openapi.Response("OK", CCRSVPSerializer()),
-            400: openapi.Response("Event does not exist"),
+            201: openapi.Response("Event Created.", CCRSVPSerializer()),
+            400: openapi.Response("Event does not exist."),
             409: openapi.Response("User has already RSVPed.")
         },
         query_serializer=CCRSVPCreationSerializer()
@@ -41,7 +41,7 @@ class CCRSVPCreationView(APIView):
             if any([r.user.pk == request.user.pk for r in event.rsvp_set.all()]):
                 return Response({
                     'ok': False,
-                    'error': "RSVP has already been created"
+                    'error': "RSVP has already been created."
                 }, status=HTTP_409_CONFLICT)
 
             # Create new RSVP
@@ -71,7 +71,7 @@ class CCRSVPView(APIView):
         operation_description="This view gets the detail of a RSVP using ID",
         responses={
             200: openapi.Response("OK", CCRSVPSerializer()),
-            400: openapi.Response("RSVP does not exist"),
+            400: openapi.Response("RSVP does not exist."),
             401: openapi.Response("Unauthorized. This RSVP does not belong to current user.")
         }
     )
@@ -97,7 +97,7 @@ class CCRSVPView(APIView):
         operation_description="This view deletes an RSVP.",
         responses={
             200: openapi.Response("OK"),
-            400: openapi.Response("RSVP does not exist"),
+            400: openapi.Response("RSVP does not exist."),
             401: openapi.Response("Unauthorized. This RSVP does not belong to current user.")
         }
     )
@@ -107,7 +107,7 @@ class CCRSVPView(APIView):
         except RSVP.DoesNotExist:  # If event is not found return error
             return Response({
                 'ok': False,
-                'error': "Event does not exist."
+                'error': "RSVP does not exist."
             }, status=HTTP_400_BAD_REQUEST)
         if rsvp.user.pk != request.user.pk:
             return Response({

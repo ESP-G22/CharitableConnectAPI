@@ -10,32 +10,87 @@ class EventTestCase(APITestCase):
 
     # Allows for ordered execution of tests
     def test_order(self):
-        pk, token = self.User_login()
-
-        self.Test_event_create_not_organiser(token)
+        # SETUP
+        pk, token = self.User_login() # ORGANISER
+        pk1, token1 = self.User2_login() # USER
+        pk2, token2 = self.User3_login() # ORGANISER
         self.Update_organiser(pk, token)
+        self.Update_organiser(pk2, token2)
+
+        # EVENT CREATE
         self.Test_event_create(token)
         self.Test_event_create_er(token)
+        self.Test_event_create_er1(token1)
+        self.Test_event_create_er2()
 
+        # EVENT LIST
         self.Test_event_list(token)
 
+        # EVENT GET
         self.Test_event_get(token)
         self.Test_event_get_er(token)
+        self.Test_event_get_er1(token1)
+        self.Test_event_get_er2()
 
+        # EVENT UPDATE
         self.Test_event_update(token)
         self.Test_event_update_er(token)
         self.Test_event_update_er1(token)
+        self.Test_event_update_er2(token1)
+        self.Test_event_update_er3(token2)
+        self.Test_event_update_er4()
 
+        # EVENT SEARCH
         self.Test_event_search(token)
         self.Test_event_search_er(token)
         self.Test_event_search_er1(token)
+        self.Test_event_search_er2()
 
-        self.Test_event_delete_er1()
+        # RSVP ADD
+        self.Test_rsvps_add(token, token1)
+        self.Test_rsvp_add_same_user(token)
+        self.Test_rsvp_add_er(token)
+        self.Test_rsvp_add_er1()
+
+        # EVENT RSVP RETRIEVAL
+        self.Test_event_get_rsvp(token)
+        self.Test_event_get_rsvp_er(token)
+        self.Test_event_get_rsvp_er1(token1)
+        self.Test_event_get_rsvp_er2()
+        self.Test_event_get_rsvp_er3(token2)
+
+        # RSVP RETRIEVAL
+        self.Test_rsvp_get(token)
+        self.Test_rsvp_get_er(token)
+        self.Test_rsvp_get_er1(token1)
+        self.Test_rsvp_get_er2()
+
+        # RSVP DELETION
+        self.Test_rsvp_delete_er(token)
+        self.Test_rsvp_delete_er1(token)
+        self.Test_rsvp_delete(token)
+
+        # EVENT DELETION
+        self.Test_event_delete_er1(token1)
+        self.Test_event_delete_er2(token2)
+        self.Test_event_delete_er3()
         self.Test_event_delete(token)
         self.Test_event_delete_er(token)
-        
-        
 
+        # RSVP DELETION ERRONEOUS
+        self.Test_rsvp_delete_er2(token)
+        self.Test_rsvp_delete_er3(token)
+        self.Test_rsvp_delete_er4()
+
+    """
+    ---------------------------------------------
+    
+    SETUP FUNCTIONS FOR USERS TO BE USED IN TESTS
+
+    ---------------------------------------------
+    """
+
+    # Creates a user for testing and logs the user in, returns primary key and token    
     def User_login(self):
         """
         Copied from User Tests, create a test user and return pk and token
@@ -49,7 +104,31 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         return user.pk, response.json()['token']
     
-    # Updates user to organiser status
+    # Creates another user for testing and logs the user in, returns primary key and token 
+    def User2_login(self):
+        user = CCUser.objects.create_user(username='test_user2', email="test@test.com", password='very-strong-psw')
+        login = {
+            "username": "test_user2",
+            "password": "very-strong-psw",
+        }
+        response = self.client.post("/user/login", login, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        token = response.json()['token']
+        return user.pk, token
+    
+    # Creates another user for testing and logs the user in, returns primary key and token 
+    def User3_login(self):
+        user = CCUser.objects.create_user(username='test_user3', email="test@test.com", password='very-strong-psw')
+        login = {
+            "username": "test_user3",
+            "password": "very-strong-psw",
+        }
+        response = self.client.post("/user/login", login, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        token = response.json()['token']
+        return user.pk, token
+    
+    # Updates a user to organiser status
     def Update_organiser(self, pk, token):
         data = { "userType": "ORGANISER", }
         response = self.client.put(f"/user/profile/{pk}", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
@@ -57,7 +136,23 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.json()['userType'], "ORGANISER")
         return
     
-    # Create Event
+
+    """
+    ---------------------------------------------
+    
+    EVENT TESTS
+
+    ---------------------------------------------
+    """
+
+
+    """
+
+    EVENT CREATION TESTS
+
+    """
+
+    # Creates multiple test Events
     def Test_event_create(self, token):
         data = { "type": "0", 
                 "title": "Test_Event", 
@@ -65,8 +160,16 @@ class EventTestCase(APITestCase):
                 "date": str(test_date),
                 "address1": "45 Test Road",
                 "postcode": "BA2 4AS", }
-        
+        data1 = { "type": "0", 
+                "title": "Test_Event1", 
+                "description": "This event is going to be BAD!", 
+                "date": str(test_date),
+                "address1": "46 Test Road",
+                "postcode": "BA2 4AB", }
         response = self.client.post("/events/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['msg'], 'New Event has been created')
+        response1 = self.client.post("/events/create", data1, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['msg'], 'New Event has been created')
         return
@@ -90,8 +193,8 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         return
     
-    # Create Event without organiser status
-    def Test_event_create_not_organiser(self, token):
+    # Attempts to create Event without organiser status
+    def Test_event_create_er1(self, token):
         data = { "type": "0", 
                 "title": "Test_Event", 
                 "description": "This event is going to be fun!", 
@@ -104,6 +207,26 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.json()['error'], 'User is not organiser')
         return
     
+    # Attempts to create event without token
+    def Test_event_create_er2(self):
+        data = { "type": "0", 
+                "title": "Test_Event", 
+                "description": "This event is going to be fun!", 
+                "date": str(test_date),
+                "address1": "45 Test Road",
+                "postcode": "BA2 4AS", }
+        
+        response = self.client.post("/events/create", data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
+    
+    """
+    
+    EVENT RETRIEVAL TESTS
+
+    """
+
     # Retrieve specified event
     def Test_event_get(self, token):
         response = self.client.get("/events/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
@@ -117,14 +240,34 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.json()['error'], 'Event not found.')
         return
+    
+    # Retrieve event not made by user
+    def Test_event_get_er1(self, token):
+        response = self.client.get("/events/2", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['id'], 2)
+        return
+    
+    # Attempts to retrieve event without token 
+    def Test_event_get_er2(self):
+        response = self.client.get("/events/2", format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
 
-    # List all events
+    #  List all events
     def Test_event_list(self, token):
         response = self.client.get("/events/list", format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.json()[0]['id'], 1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         return
+
+    """
     
+    EVENT UPDATE TESTS
+
+    """
+
     # Update existing event
     def Test_event_update(self, token):
         data = { "title": "Test_Event_Updated", 
@@ -166,12 +309,54 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.json()['error'], 'Event not found.')
         return
+    
+    # Attempts to update event without organiser status
+    def Test_event_update_er2(self, token):
+        data = { "title": "Test_Event_Updated", 
+                "description": "This event is going to be terrible!", 
+                "date": str(test_date),
+                "address1": "45 Test Street",
+                "postcode": "BA2 4AB", }
+        response = self.client.put("/events/1", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['error'], 'Unauthorized: You are not event organiser.')
+        return
+
+    # Attempts to update event made by a different organiser with organiser status
+    def Test_event_update_er3(self, token):
+        data = { "title": "Test_Event_Updated", 
+                "description": "This event is going to be terrible!", 
+                "date": str(test_date),
+                "address1": "45 Test Street",
+                "postcode": "BA2 4AB", }
+        response = self.client.put("/events/1", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['error'], 'Unauthorized: You are not event organiser.')
+        return
+
+    # Attempts to update event without token
+    def Test_event_update_er4(self):
+        data = { "title": "Test_Event_Updated", 
+                "description": "This event is going to be terrible!", 
+                "date": str(test_date),
+                "address1": "45 Test Street",
+                "postcode": "BA2 4AB", }
+        response = self.client.put("/events/1", data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
+    """
+    
+    EVENT SEARCH TESTS
+
+    """
 
     # Search for a specific event
     def Test_event_search(self, token):
         data = { "searchTerm": "Test", }
         response = self.client.get("/events/search", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['data'][0]['id'], 1)
         return
     
     # Search for a non-existing event
@@ -189,6 +374,20 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json()['error'], {'searchTerm': ['This field may not be blank.']})
         return
+    
+    # Search for an event without token
+    def Test_event_search_er2(self):
+        data = { "searchTerm": "fooey", }
+        response = self.client.get("/events/search", data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
+    
+    """
+    
+    EVENT DELETION TESTS
+
+    """
 
     # Deletes a specified event
     def Test_event_delete(self, token):
@@ -204,21 +403,197 @@ class EventTestCase(APITestCase):
         self.assertEqual(response.json()['error'], 'Event not found.')
         return
     
-    # Attempts to delete an event but is unauthorized
-    def Test_event_delete_er1(self):
-        user = CCUser.objects.create_user(username='test_user2', email="test@test.com", password='very-strong-psw')
-        login = {
-            "username": "test_user2",
-            "password": "very-strong-psw",
-        }
-        response = self.client.post("/user/login", login, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        token = response.json()['token']
+    # Attempts to delete an event but has user status
+    def Test_event_delete_er1(self, token):
         response1 = self.client.delete("/events/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
         self.assertEqual(response1.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response1.json()['error'], 'Unauthorized: You are not event organiser.')
         return
-  
+    
+    # Attempts to delete a different organisers event with organiser status
+    def Test_event_delete_er2(self, token):
+        response1 = self.client.delete("/events/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response1.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response1.json()['error'], 'Unauthorized: You are not event organiser.')
+        return
+    
+    # Attempts to delete an event without a token
+    def Test_event_delete_er3(self):
+        response = self.client.delete("/events/1", format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
 
 
+    """
+    
+    EVENT RSVP TESTS
+
+    """
+
+    # Fetches all the rsvps for a specific event
+    def Test_event_get_rsvp(self, token):
+        response = self.client.get("/events/1/rsvp", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['data'][0]['id'], 1)
+        self.assertEqual(response.json()['data'][1]['id'], 2)
+
+    # Attempts to fetch rsvps for a non-existing event
+    def Test_event_get_rsvp_er(self, token):
+        response = self.client.get("/events/0/rsvp", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.json()['error'], 'Event not found.')
+
+    # Attempts to fetch rsvps for an event that wasn't created by the user
+    def Test_event_get_rsvp_er1(self, token):
+        response = self.client.get("/events/1/rsvp", format='json', HTTP_AUTHORIZATION=f"Token {token}")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['error'], 'Unauthorized: You are not event organiser.')
+        return
+
+    # Attempts to fetch rsvps for an event without a token
+    def Test_event_get_rsvp_er2(self):
+        response = self.client.get("/events/1/rsvp", format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
+
+    # Attempts to fetch rsvps for an event that was created by another organiser with organiser status
+    def Test_event_get_rsvp_er3(self, token):
+        response = self.client.get("/events/1/rsvp", format='json', HTTP_AUTHORIZATION=f"Token {token}")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['error'], 'Unauthorized: You are not event organiser.')
+        return
+
+    """
+    ---------------------------------------------
+    
+    RSVP TESTS
+
+    ---------------------------------------------
+
+    """
+
+    """
+    
+    RSVP CREATION TESTS
+
+    """
+
+    # Creates multiple rsvps for an event
+    def Test_rsvps_add(self, token, token1):
+        data = { "event": "1" }
+        response = self.client.post("/rsvp/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        response1 = self.client.post("/rsvp/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token1}')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()['data']['id'], 1)
+        self.assertEqual(response1.json()['data']['id'], 2)
+        return
+
+    # Attempts to add rsvp for same user multiple times
+    def Test_rsvp_add_same_user(self, token):
+        data = { "event": "1" }
+        response = self.client.post("/rsvp/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json()['error'], 'RSVP has already been created.')
+        return
+
+    # Attemps to create an rsvp for an event that doesn't exist
+    def Test_rsvp_add_er(self, token):
+        data = { "event": "0" }
+        response = self.client.post("/rsvp/create", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error'], 'Event does not exist.')
+        return
+    
+    # Attempts to creates rsvp for an event without token
+    def Test_rsvp_add_er1(self):
+        data = { "event": "1" }
+        response = self.client.post("/rsvp/create", data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
+
+    """
+    
+    RSVP RETRIEVAL TESTS
+
+    """
+
+    # Gets rsvp info
+    def Test_rsvp_get(self, token):
+        response = self.client.get("/rsvp/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['data']['id'], 1)
+        return
+
+    # Attempts to get rsvp info of a non-existing event
+    def Test_rsvp_get_er(self, token):
+        response = self.client.get("/rsvp/0", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error'], 'Event does not exist.')
+        return
+    
+    # Attemps to get rsvp info of a different user
+    def Test_rsvp_get_er1(self, token1):
+        response = self.client.get("/rsvp/1", format='json', HTTP_AUTHORIZATION=f'Token {token1}')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['error'], 'Unauthorized. This rsvp does not belong to current user.')
+        return
+
+    # Attempts to get rsvp info without a token
+    def Test_rsvp_get_er2(self):
+        response = self.client.get("/rsvp/1", format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
+
+    """
+    
+    RSVP DELETION TESTS
+
+    """
+
+    # Attempts to delete an rsvp that doesn't exist
+    def Test_rsvp_delete_er(self, token):
+        response = self.client.delete("/rsvp/0", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error'], 'RSVP does not exist.')
+        return
+
+    # Attemps to delete an rsvp that doesn't belong to the user
+    def Test_rsvp_delete_er1(self, token):
+        response = self.client.delete("/rsvp/2", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['error'], 'Unauthorized. This RSVP does not belong to current user.')
+        return
+
+    # Deletes the rsvp for an event
+    def Test_rsvp_delete(self, token):
+        response = self.client.delete("/rsvp/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['msg'], 'RSVP has been deleted.')
+        return
+    
+    # Attemps to get an rsvp for an event that has been deleted
+    def Test_rsvp_delete_er2(self, token):
+        response = self.client.get("/rsvp/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error'], 'Event does not exist.')
+        return
+
+    # Deletes an rsvp for an event that has been deleted
+    def Test_rsvp_delete_er3(self, token):
+        response = self.client.delete("/rsvp/1", format='json', HTTP_AUTHORIZATION=f'Token {token}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()['error'], 'RSVP does not exist.')
+        return
+    
+    # Attemps to delete an rsvp without a token
+    def Test_rsvp_delete_er4(self):
+        response = self.client.delete("/rsvp/2", format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()['detail'], 'Authentication credentials were not provided.')
+        return
 
