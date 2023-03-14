@@ -204,7 +204,7 @@ class RSVPTestCase(APITestCase):
     def Test_rsvp_get_er1(self, token1):
         response = self.client.get("/rsvp/1", format='json', HTTP_AUTHORIZATION=f'Token {token1}')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.json()['error'], 'Unauthorized. This rsvp does not belong to current user.')
+        self.assertEqual(response.json()['error'], 'Unauthorized. This RSVP does not belong to current user.')
         return
 
     # Attempts to get rsvp info without a token
