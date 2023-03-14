@@ -20,7 +20,10 @@ class CCEventListView(APIView):
         }
     )
     def get(self, request, format=None):
-        return Response([CCEventSerializer(event).data for event in Event.objects.all()])
+        kwargs = {}
+        for k,v in request.query_params.items():
+            kwargs[k] = ''.join(v)
+        return Response([CCEventSerializer(event).data for event in Event.objects.filter(**kwargs)])
 
 class CCEventView(APIView):
     authentication_classes = [BearerAuthentication]
