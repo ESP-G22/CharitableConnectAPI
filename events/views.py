@@ -41,7 +41,7 @@ class CCEventView(APIView):
             event = Event.objects.get(pk = pk)
         except Event.DoesNotExist:
             return Response({"ok": False, "error": "Event not found."},status=HTTP_404_NOT_FOUND)
-        return Response(CCEventSerializer(event).data,status=HTTP_200_OK)
+        return Response(CCEventSerializer(event, context={'user_id': request.user.pk}).data,status=HTTP_200_OK)
     
     @swagger_auto_schema(
         operation_description="Updates the specified event",
