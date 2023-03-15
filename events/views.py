@@ -16,14 +16,20 @@ class CCEventListView(APIView):
     @swagger_auto_schema(
         operation_description = "Gets a list of events", 
         responses = {
-            200: openapi.Response("OK", CCEventSerializer(many=True))
+            200: openapi.Response("OK", CCEventSerializer(many=True)),
+            400: openapi.Response("Bad Request, Invalid GET Parameter")
         }
     )
     def get(self, request, format=None):
         kwargs = {}
         for k,v in request.query_params.items():
-            kwargs[k] = ''.join(v)
-        return Response([CCEventSerializer(event).data for event in Event.objects.filter(**kwargs)])
+            if k != 'sort':
+                kwargs[k] = ''.join(v)
+        try:
+            data = sorted([CCEventSerializer(event).data for event in Event.objects.filter(**kwargs)], key=lambda x: x[request.query_params['sort'] if 'sort' in request.query_params else 'date'])
+        except KeyError:
+            return Response({"ok": False, "error": "Invalid GET Parameter"}, status=HTTP_400_BAD_REQUEST)
+        return Response(data)
 
 class CCEventView(APIView):
     authentication_classes = [BearerAuthentication]
