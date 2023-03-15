@@ -76,11 +76,14 @@ class CCUserRegisterView(APIView):
         operation_description = "Registers a new user", 
         responses = {
             200: openapi.Response("OK", CCUserGetSerializer()),
-            400: openapi.Response("Bad request. The input data may be in the incorrect format. Refer to documentation.")
+            400: openapi.Response("Bad request. The input data may be in the incorrect format. Refer to documentation."),
+            409: openapi.Response("Conflict. A user with the same username already exists.",examples={'application/json':{"error": "A user with that username already exists"}})
         },
         query_serializer = CCUserRegisterSerializer()
     )
     def post(self, request, format=None):
+        if request.data['username'] in [user.username for user in CCUser.objects.all()]:
+            return Response({"error": "A user with that username already exists"}, status=409)
         serializer = CCUserRegisterSerializer(data=request.data)
         if serializer.is_valid():
             newCCUser = CCUser.objects.create(
