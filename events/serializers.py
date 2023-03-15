@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 from user.serializers import CCUserProfileSerializer
-from rsvp.models import RSVP
 from rsvp.serializer import CCRSVPSerializer
 class CCEventSerializer(serializers.ModelSerializer):
     organiser = CCUserProfileSerializer(read_only=True)
