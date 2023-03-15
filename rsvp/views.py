@@ -63,6 +63,17 @@ class CCRSVPCreationView(APIView):
                 'errors': serializer.errors
             }, status=HTTP_400_BAD_REQUEST)
 
+class CCRSVPUserListView(APIView):
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        rsvps = RSVP.objects.filter(user=request.user.pk)
+        return Response({
+            'ok': True,
+            'rsvps': [CCRSVPSerializer(rsvp).data for rsvp in rsvps]
+        })
+
 class CCRSVPView(APIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
