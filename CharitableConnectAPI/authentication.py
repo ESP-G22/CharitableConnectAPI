@@ -1,4 +1,6 @@
 from rest_framework.authentication import *
+from django.utils.translation import gettext_lazy as _
+
 class BearerAuthentication(TokenAuthentication):
     keyword = ['token','bearer']
     def authenticate(self, request):
