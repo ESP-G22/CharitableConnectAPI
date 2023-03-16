@@ -14,10 +14,11 @@ class CCUserGetSerializer(serializers.ModelSerializer):
         model = CCUser
         fields = ['username','email','pk']
 
-class CCUserRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CCUser
-        fields = ['username', 'email', 'password']
+class CCUserRegisterSerializer(serializers.Serializer):
+    model = CCUser
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True)
 
 class CCUserPasswordChangeSerializer(serializers.Serializer):
     model = CCUser
