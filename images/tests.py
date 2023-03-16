@@ -11,9 +11,8 @@ class ImageTestCase(APITestCase):
 
     def test_order(self):
         temp = SimpleUploadedFile(name='test_image.jpg', content=open('images/testImages/test_image.jpg', 'rb').read(), content_type='image/jpeg')
-        testPhoto = Image.objects.create(file=temp)
         pk, token = self.User_login()
-        self.Test_Image_Upload(token, testPhoto)
+        self.Test_Image_Upload(token, temp)
         return
     
     """
@@ -41,7 +40,7 @@ class ImageTestCase(APITestCase):
     # Uploads an image, returning UUID
     def Test_Image_Upload(self, token, testPhoto):
         data = { "file": testPhoto, }
-        response = self.client.post("/images/upload", data, content_type='image', HTTP_AUTHORIZATION=f'Token {token}')
+        response = self.client.post("/images/upload", data, format='multipart', HTTP_AUTHORIZATION=f'Token {token}')
         print(response.json())
         print(response.status_code)
         return
