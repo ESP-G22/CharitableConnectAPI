@@ -49,8 +49,6 @@ class ImageRetrieveView(APIView):
     def get(self, request, id):
         try:
             image = Image.objects.get(id=id)
-            print(mimetypes.guess_type(image.file.path))
-            print(image.file.path)
             resp = HttpResponse(open(image.file.path,'rb').read(),
                             content_type=mimetypes.guess_type(image.file.path)[0])
             return resp
