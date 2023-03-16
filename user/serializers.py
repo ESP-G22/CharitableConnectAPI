@@ -3,6 +3,8 @@ from .models import *
 
 class CCUserProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
+    followerCount = serializers.IntegerField(read_only=True)
+    eventCount = serializers.IntegerField(read_only=True)
     class Meta:
         model = CCUserProfile
         fields = '__all__'
