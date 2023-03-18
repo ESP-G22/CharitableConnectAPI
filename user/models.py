@@ -64,6 +64,14 @@ class CCUserProfile(models.Model):
     facebook = models.URLField(default='',null=True,blank=True)
     avatar = models.UUIDField(null=True, blank=True)
 
+    @property
+    def followerCount(self):
+        return self.followers.through.objects.count()
+
+    @property
+    def eventCount(self):
+        return self.user.event_set.count()
+
     def __str__(self):
         return self.user.username
 

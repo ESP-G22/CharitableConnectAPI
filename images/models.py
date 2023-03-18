@@ -6,5 +6,5 @@ class Image(models.Model):
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, unique=True, editable=False)
 
     def __str__(self):
-        return self.uuid
+        return self.id
 

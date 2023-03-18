@@ -82,7 +82,7 @@ class CCUserRegisterView(APIView):
         query_serializer = CCUserRegisterSerializer()
     )
     def post(self, request, format=None):
-        if request.data['username'] in [user.username for user in CCUser.objects.all()]:
+        if 'username' in request.data and request.data['username'] in [user.username for user in CCUser.objects.all()]:
             return Response({"error": "A user with that username already exists"}, status=409)
         serializer = CCUserRegisterSerializer(data=request.data)
         if serializer.is_valid():
