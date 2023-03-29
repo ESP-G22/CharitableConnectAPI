@@ -9,7 +9,8 @@ urlpatterns = [
     path('profile/<int:pk>', CCUserProfileView.as_view()),
     path('list', CCUserListView().as_view()),
     path('register', CCUserRegisterView.as_view()),
-    path('passwordchange', CCUserPasswordChangeView.as_view())
+    path('passwordchange', CCUserPasswordChangeView.as_view()),
+    path('follow/<int:pk>', CCUserFollowView.as_view())
 ]
 
 #urlpatterns += router.urls

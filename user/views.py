@@ -120,3 +120,30 @@ class CCUserPasswordChangeView(APIView):
             user.save()
             return Response(status=200)
         return Response(serializer.errors, status=400)
+
+class CCUserFollowView(APIView):
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+    model = CCUserProfile
+
+    def post(self, request, pk):
+        user = self.request.user
+        if user.pk == pk:
+            return Response({"ok": False, "error": "You cannot follow yourself."},status=400)
+        try:
+            targetUser = CCUser.objects.get(pk=pk)
+            CCUser.objects.get(pk=user.pk).profile.followedUsers.add(targetUser.profile)
+            return Response({"ok": True, "msg": "Success"}, status=200)
+        except CCUser.DoesNotExist:
+            return Response({"ok": False, "msg": "User does not exist"}, status=404)
+    
+    def delete(self, request, pk):
+        user = self.request.user
+        if user.pk == pk:
+            return Response({"ok": False, "error": "You cannot follow nor unfollow yourself."},status=400)
+        try:
+            targetUser = CCUser.objects.get(pk=pk)
+            CCUser.objects.get(pk=user.pk).profile.followedUsers.remove(targetUser.profile)
+            return Response({"ok": True, "msg": "Success"}, status=200)
+        except CCUser.DoesNotExist:
+            return Response({"ok": False, "msg": "User does not exist"}, status=404)
