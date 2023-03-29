@@ -56,7 +56,7 @@ class CCUserProfile(models.Model):
     description = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=20, blank=True)
     dateJoined = models.DateTimeField(auto_now_add=True)
-    userType = models.TextField(choices=UserType.choices, default=UserType.USER)
+    userType = models.TextField(choices=UserType.choices, default=UserType.ORGANISER)
     followedUsers = models.ManyToManyField('self', related_name='followers', symmetrical=False,blank=True)
     twitter = models.URLField(default='', null=True,blank=True)
     website = models.URLField(default='', null=True,blank=True)

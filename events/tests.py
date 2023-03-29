@@ -95,7 +95,11 @@ class EventTestCase(APITestCase):
         }
         response = self.client.post("/user/login", login, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = { "userType": "USER", }
+        pk = user.pk
         token = response.json()['token']
+        # Sets usertype as user
+        self.client.put(f"/user/profile/{pk}", data, format='json', HTTP_AUTHORIZATION=f'Token {token}')
         return user.pk, token
     
     # Creates another user for testing and logs the user in, returns primary key and token 
