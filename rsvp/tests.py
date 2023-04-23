@@ -110,13 +110,13 @@ class RSVPTestCase(APITestCase):
 
     # Creates multiple test Events
     def Test_event_create(self, token):
-        data = { "type": "Movies",
+        data = { "type": "Other",
                 "title": "Test_Event", 
                 "description": "This event is going to be fun!", 
                 "date": str(test_date),
                 "address1": "45 Test Road",
                 "postcode": "BA2 4AS", }
-        data1 = { "type": "Movies", 
+        data1 = { "type": "Other", 
                 "title": "Test_Event1", 
                 "description": "This event is going to be BAD!", 
                 "date": str(test_date),

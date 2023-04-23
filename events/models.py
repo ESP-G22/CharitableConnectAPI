@@ -6,13 +6,13 @@ import uuid
 from django.utils import timezone
 import datetime
 
-# Event types:FoodTasting, Movies, Club, Sports
+# Event types:Local Business, Climate, Community, Sports, Other.
 
 class EventType(models.TextChoices):
-    LocalBusiness = 'localBusiness', gettext_lazy('Local Business')
-    Climate = 'climate', gettext_lazy('Climate')
-    Community = 'community', gettext_lazy('Community')
-    Sports = 'sports', gettext_lazy('Sports')
+    LocalBusiness = 'LocalBusiness', gettext_lazy('Local Business')
+    Climate = 'Climate', gettext_lazy('Climate')
+    Community = 'Community', gettext_lazy('Community')
+    Sports = 'Sports', gettext_lazy('Sports')
     Other = 'Other', gettext_lazy('Other')
 
 
