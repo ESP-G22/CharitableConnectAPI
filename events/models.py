@@ -9,11 +9,12 @@ import datetime
 # Event types:FoodTasting, Movies, Club, Sports
 
 class EventType(models.TextChoices):
-    FoodTasting = 'FoodTasting', gettext_lazy('FoodTasting')
-    Movies = 'Movies', gettext_lazy('Movies')
-    Club = 'Club', gettext_lazy('Club')
-    Sports = 'Sports', gettext_lazy('Sports')
+    LocalBusiness = 'localBusiness', gettext_lazy('Local Business')
+    Climate = 'climate', gettext_lazy('Climate')
+    Community = 'community', gettext_lazy('Community')
+    Sports = 'sports', gettext_lazy('Sports')
     Other = 'Other', gettext_lazy('Other')
+
 
 class Event(models.Model):
     type = models.CharField(choices=EventType.choices, default=EventType.Other,max_length=20)
